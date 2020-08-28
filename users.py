@@ -1,12 +1,9 @@
 from firebase import firebase
+from firebase_admin import db
 
 class Users:
 
-    global fb
-    fb = firebase.FirebaseApplication("https://mycart-python.firebaseio.com/", None)
-
     def __init__(self, firstname=None, lastname=None, email=None, admin_boolean=False):
-
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
@@ -20,12 +17,14 @@ class Users:
             'email': email,
             'admin_boolean': admin_boolean
         }
-        result = fb.post('/Users', data)
-        print("User created with id: ", result)
+        ref_variable = db.reference('Users').set()
+        print(ref_variable.key)
 
-    def show_users(self):
-        result = fb.get('/Users', '')
-        print(result)
+    @staticmethod
+    def show_users():
+        users = db.reference('Users').get()
+        return users
+        
 
 # users_object = Users()
 # users_object.add_user("new", "user")

@@ -1,28 +1,28 @@
 from firebase import firebase
+from firebase_admin import db
 
 class Category:
-
-    global fb
-    fb = firebase.FirebaseApplication("https://mycart-python.firebaseio.com/", None)
 
     def __init__(self, category_name=None):
         self.category_name = category_name
 
     def add_category(self, category_name=None):
         data = {
-            'category_name': category_name,
+            'category_name': category_name, 
         }
-        result = fb.post('/Category', data)
-        print("Category created with id: ", result)
 
-    def remove_category(self, id):
+        new_ref = db.reference('Category').push(data)
+        print(new_ref.key)
 
-        fb.delete('/Category', id)
-        print("Deleted")
+    @staticmethod
+    def remove_category(id):
+        db.reference("Category/{}".format(id)).delete()
 
-    def show_categories(self):
-        result = fb.get('/Category', '')
-        print(type(result))
+    @staticmethod
+    def show_categories():
+        categories = db.reference("Category").get()
+        return categories
+        
 
 # category_object = Category()
 # category_object.add_category("Clothes")

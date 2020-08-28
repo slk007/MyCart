@@ -1,9 +1,7 @@
 from firebase import firebase
+from firebase_admin import db
 
 class Product:
-
-    global fb
-    fb = firebase.FirebaseApplication("https://mycart-python.firebaseio.com/", None)
 
     def __init__(self, name=None, company=None, about=None, specification=None, category=None, category_id=None):
         self.name = name
@@ -14,7 +12,7 @@ class Product:
         self.category_id = category
 
     def add_product(self,name, company, about="Inches", specification="RAM ROM", category="Appliances", category_id=None):
-        # fb = firebase.FirebaseApplication("https://mycart-python.firebaseio.com/", None)
+
         data = {
             'Name': name,
             'Company': company,
@@ -23,22 +21,23 @@ class Product:
             'Category': category,
             'Category_ID': category_id,
         }
-        result = fb.post('/Product', data)
-        print("Product created with id: ", result)
-        return result[name]
 
-    def remove_product(self, id):
-        # fb = firebase.FirebaseApplication("https://mycart-python.firebaseio.com/", None)
-        fb.delete('/Product', id)
-        print("deleted")
+        new_ref = db.reference('Product').push(data)
+        print(new_ref.key)
+
 
     @staticmethod
-    def show_products(self):
-        result = fb.get('/Product', '')
-        print(result)
+    def remove_product(id):
+        db.reference("Product/{}".format(id)).delete()
+
+    @staticmethod
+    def show_products():
+        products = db.reference("Product").get()
+        return products
 
 
 # product_object = Product()
-# product_id = product_object.add_product("Vostro", "Dell")
-# product_object.remove_product(id)
-# product_object.show_products()
+# product_id = product_object.add_product("DEll", "Dell")
+
+# remove_product(id)
+# show_products()
