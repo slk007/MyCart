@@ -32,6 +32,7 @@ class Product:
         fb.delete('/Product', id)
         print("deleted")
 
+    @staticmethod
     def show_products(self):
         result = fb.get('/Product', '')
         print(result)
