@@ -1,7 +1,6 @@
-import add_product
+from product import Product
+from users import User
 
 
-
-
-
-print(add_product())
+p = Product()
+print(p.show_products())

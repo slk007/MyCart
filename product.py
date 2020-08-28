@@ -37,7 +37,7 @@ class Product:
         print(result)
 
 
-product_object = Product()
+# product_object = Product()
 # product_id = product_object.add_product("Vostro", "Dell")
 # product_object.remove_product(id)
-product_object.show_products()
+# product_object.show_products()
