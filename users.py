@@ -21,14 +21,14 @@ class Users:
         return ref_variable.key
 
     @staticmethod
-    def show_users():
+    def get_all_users():
         users = db.reference('Users').get()
         return users
 
-    # @staticmethod
-    # def users_order_by_child():
-    #     users = db.reference('Users').order_by_child('name').get()
-    #     return users
+    @staticmethod
+    def get_user_by_id(id):
+        user = db.reference("Users/{}".format(id)).get()
+        return user
 
 
 

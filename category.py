@@ -19,17 +19,30 @@ class Category:
         db.reference("Category/{}".format(id)).delete()
 
     @staticmethod
-    def show_categories():
+    def get_all_categories():
         categories = db.reference("Category").get()
 
-        print("-"*30)
-        print("All Categories")
-        print("-"*30)
+        if categories:
 
-        for category_id, values in categories.items():
-            print(values['category_name'])
-            
-        print("-"*30)
+            print("-"*30)
+            print("All Categories")
+            print("-"*30)
+
+            for category_id, values in categories.items():
+                print(values['category_name'])
+                
+            print("-"*30)
+            return True
+        else:
+            print("Sorry No Categories Yet !!!")
+            print("-"*30)
+            return False
+
+
+    @staticmethod
+    def get_category_by_id(id):
+        category = db.reference("Category/{}".format(id)).get()
+        return category
         
 
 # category_object = Category()

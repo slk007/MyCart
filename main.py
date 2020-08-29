@@ -5,6 +5,8 @@ from firebase_admin import db
 from product import Product
 from category import Category
 from users import Users
+from bill import Bill
+from cart import Cart
 
 cred = credentials.Certificate("mycart-python-firebase-authenticate-key.json")
 
@@ -13,23 +15,10 @@ firebase_admin.initialize_app(cred, {
 })
 
 
-# db.reference("/Product").get())
-# Product.show_products()
-# print("-----------------------")
-# Product.remove_product('-MFpfd9Yx2sP49VduHMO')
-# print("-----------------------")
-# Product.show_products()
-# new_product_obj = Product()
-# new_product_obj.add_product("Lenivo", "lelo")
-
-# print(Category.show_categories())
-# Category.remove_category("-MFoxyV7M7o1hqPJYw_4")
-
-# print(Users.show_users())
 
 def search_user_for_login(email, password, boolean_admin):
 
-    users_dic = Users.show_users()
+    users_dic = Users.get_all_users()
 
     for user_id,value in users_dic.items():
         if value['admin_boolean'] == boolean_admin and value['email']==email and value['password']==password:
@@ -72,13 +61,17 @@ def new_category():
     return new_cat
 
 def products_per_category(category_name):
-    products_per_category = Product.show_products_per_category(category_name)
-    for key,value in products_per_category.items():
-        print("Name:", value['Name'],'\n', "Company:", value['Company'],'\n',"About:", value['About'],'\n',"Specification:", value['Specification'],'\n',"Category:", value['Category'])
-        print("-"*10)
+    products_per_cat = Product.get_products_per_category(category_name)
+    if products_per_cat:
+        for key,value in products_per_cat.items():
+            print("Name:", value['Name'],'\n', "Company:", value['Company'],'\n',"About:", value['About'],'\n',"Specification:", value['Specification'],'\n',"Category:", value['Category'])
+            print("-"*10)
+        return True
+    else:
+        return False
 
 def product_by_name():
-    print(Product.show_product_by_name('Dell'))
+    print(Product.get_product_by_name('Dell'))
 
 
 def admin_start():
@@ -103,13 +96,13 @@ def admin_start():
     else:
         print("Wrong Choice. Please Try again")
 
+# category part
 
     # view category list
-    print(Category.show_categories())
-
-
     print("-"*30)
-    print("Type 's/S' to Select a Category")
+    if Category.get_all_categories():
+        print("Type 's/S' to Select a Category")
+    
     print("Type 'n/N' to Create New Category")
     print("-"*30)
     choice = input("Your Choice : ")
@@ -122,7 +115,7 @@ def admin_start():
             # select category
             print("Type the Category You Want to Select:")
             print("-"*30)
-            category_choice = input("Your Choice :")
+            category_choice = input("Your Choice : ")
             print("-"*30)
 
         elif choice in 'nN':
@@ -133,17 +126,18 @@ def admin_start():
         print("Wrong Choice. Please Try again")
 
 
-    # show products list per category
-    products_per_category(category_choice)
+# product part
 
+    # show products list per category
+    if products_per_category(category_choice):
+        print("Type 'r/R' to Remove Product")
 
     print("Type 'n/N' to Add New Product")
-    print("Type 'r/R' to Remove Product")
     print("-"*30)
     choice = input("Your Choice : ")
     print("-"*30)
 
-    product_choice = ""
+    # product_choice = ""
 
     if len(choice) == 1:
         if choice in 'n/N':
@@ -151,27 +145,34 @@ def admin_start():
             print('-'*30)
             print("Enter Details for new Product:")
             print('-'*30)
+
             product_name = input("Product Name : ")
             product_company = input("Product Company : ")
             product_about = input("Product About : ")
             product_specs = input("Product Specifications : ")
-            prod_object = Product.add_product(product_name, product_company, product_about, product_specs, category_choice)
+            product_price = input("Price : ")
+
+
+            prod_object = Product()
+            prod_id = prod_object.add_product(name=product_name, company=product_company, about=product_about, specification=product_specs, category=category_choice, price=product_price)
             
-            
+
         elif choice in 'rR':
             # remove product
             print('-'*30)
             print("Enter Product ID to be Delete")
             print('-'*30)
-            product_to_be_deleted = input("Product ID:")
-            Product.remove_product(product_to_be_deleted)
+            product_id = input("Product ID:")
+            Product.remove_product(product_id)
 
 
+    # users part
     print("-"*30)
     print("Users List:")
     print("-"*30)
+
     # see users list
-    users_dict = Users.show_users()
+    users_dict = Users.get_all_users()
     
 
     # see his order details or bill
@@ -203,7 +204,7 @@ def user_start():
 
 
     # view category list
-    print(Category.show_categories())
+    print(Category.get_all_categories())
 
     # select category
     print("Type the Category You Want to Select:")
@@ -212,7 +213,10 @@ def user_start():
     print("-"*30)
 
     # view product list per category
-    products_per_category(category_choice)
+    if products_per_category(category_choice):
+        print("-"*30)
+    else:
+        print("-"*30)
 
     # view product by name
 
@@ -253,26 +257,22 @@ def starting():
     else:
         print("Wrong Choice !!! Please try again")
 
+    pass
+
 
 starting()
 
 
+# bill_object = Bill()
+# print(bill_object.add_bill('userid', 123456, {'Laptop':20000}, 25000, 500, 24500))
 
+# cart_obj = Cart()
+# print(cart_obj.add_user_to_cart("-MFtSESHPtEX3oFRp1nJ", {'Plant':500}, 0, 500))
 
-# search_user_for_login("shubham@jgmail.com", "padflkjjdg", True)
+# print(Cart().show_cart_by_id('-MFuKkIAZgxohVtGqYnl'))
 
-# def ordering_data_by_child():
-#     dic = Users.users_order_by_child()
+# print(Users.get_user_by_id('-MFtSESHPtEX3oFRp1nJ'))
 
-#     for key,value in dic.items():
-#         print(key, value)
+# p = Product()
 
-# ordering_data_by_child()
-
-
-# products_per_category()
-
-
-# product_by_name()
-
-# Category.show_categories()
+# print(p.add_product(name="Mouse", company="Boat", about="Black", specification="Wired", category="Gadgets", price="900"))
