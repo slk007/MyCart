@@ -3,13 +3,13 @@ from firebase_admin import db
 
 class Product:
 
-    def __init__(self, name=None, company=None, about=None, specification=None, category=None, category_id=None):
-        self.name = name
-        self.company = company
-        self.about = about
-        self.specification = specification
-        self.category = category
-        self.category_id = category
+    def __init__(self):
+        self.name = None
+        self.company = None
+        self.about = None
+        self.specification = None
+        self.category = None
+        self.category_id = None
 
     def add_product(self, name, company, about, specification, category, price):
 
@@ -24,7 +24,6 @@ class Product:
 
         new_ref = db.reference('Product').push(data)
         return new_ref.key
-
 
     @staticmethod
     def remove_product(id):
@@ -50,16 +49,23 @@ class Product:
             print("No Products for this categroy yet !!")
             return False
 
-    
     @staticmethod
     def get_product_by_id(id):
         product = db.reference("Product/{}".format(id)).get()
         return product
 
+    @staticmethod
+    def get_product_id_by_product_name(product_name):
+        product_dic = db.reference("Product").order_by_child("Name").equal_to(product_name).get()
+        product_id = ""    
+        for key,value in product_dic.items():
+            product_id = key
+        return product_id
 
-# product_object = Product()
-# product_id = product_object.add_product("DEll", "Dell")
-
-# remove_product(id)
-# get_all_products()
-# get_product_by_id(id)
+    @staticmethod
+    def get_products_id_by_category_name(category_name):
+        product_dic = db.reference("Product").order_by_child("Category").equal_to(category_name).get()
+        product_id_list = []
+        for key,value in product_dic.items():
+            product_id_list.append(key)
+        return product_id_list

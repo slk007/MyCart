@@ -5,29 +5,37 @@ from datetime import date
 
 class Bill:
 
-    def __init__(self, userid=None, invoice=None, date=None, items=None, discount=0, paid_amount=0):
-        self.userid = userid
-        self.invoice = invoice
-        self.date = date
-        self.items = items
-        self.discount = discount
-        self.paid_amount = paid_amount
+    def __init__(self):
+        self.userid = None
+        self.username = None
+        self.invoice = None
+        self.date = None
+        self.actual_amount = None
+        self.discount = None
+        self.final_amount = None
 
-    def add_bill(self, userid=None, invoice=None, items=None, total_amount=0, discount=0, paid_amount=0):
+    def add_bill(self, userid=None, username=None, invoice=None, discount=0, actual_amount=0):
+
+        if actual_amount > 10000:
+            discount = 500
+        final_amount = actual_amount - discount
 
         data = {
             'UserID': userid,
+            'Username': username,
             'Invoice': invoice,
             'Date': str(date.today()),
-            'Items': items,
-            'Total Amount': total_amount,
+            'Actual Amount': actual_amount,
             'Discount': discount,
-            'Paid Amount': paid_amount,
+            'Final Amount': final_amount,
         }
-
         new_ref = db.reference('Bill').push(data)
         return new_ref.key
 
+    @staticmethod
+    def get_bill_by_id(id):
+        bill = db.reference("Bill/{}".format(id)).get()
+        return bill
 
     @staticmethod
     def remove_bill(id):
@@ -41,4 +49,8 @@ class Bill:
 
     @staticmethod
     def get_bills_by_user_id(user_id):
+        pass
+
+    @staticmethod
+    def get_bills_by_username(username):
         pass

@@ -24,13 +24,11 @@ class Category:
 
         if categories:
 
-            print("-"*30)
-            print("All Categories")
-            print("-"*30)
+            print("-"*20, "Categories", "-"*20)
 
             for category_id, values in categories.items():
                 print(values['category_name'])
-                
+
             print("-"*30)
             return True
         else:
@@ -43,8 +41,3 @@ class Category:
     def get_category_by_id(id):
         category = db.reference("Category/{}".format(id)).get()
         return category
-        
-
-# category_object = Category()
-# category_object.add_category("Clothes")
-# category_object.remove_category()

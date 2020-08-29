@@ -15,6 +15,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 
+logged_in_user_id = None
 
 def search_user_for_login(email, password, boolean_admin):
 
@@ -23,9 +24,14 @@ def search_user_for_login(email, password, boolean_admin):
     for user_id,value in users_dic.items():
         if value['admin_boolean'] == boolean_admin and value['email']==email and value['password']==password:
             print("Welcome" , value['name'])
+
+            global logged_in_user_id
+            logged_in_user_id = user_id
+
             break
 
     print("-"*30)
+
 
 def sign_up(boolean_admin):
     print("To Sign Up Please Enter Below Details:")
@@ -38,6 +44,10 @@ def sign_up(boolean_admin):
     new_user_id = new_user.add_user(name, email_id, password, boolean_admin)
 
     print("Sign Up Successfull !!")
+
+    global logged_in_user_id
+    logged_in_user_id = new_user_id
+
     print(new_user_id)
 
 
@@ -60,19 +70,29 @@ def new_category():
 
     return new_cat
 
-def products_per_category(category_name):
-    products_per_cat = Product.get_products_per_category(category_name)
-    if products_per_cat:
-        for key,value in products_per_cat.items():
-            print("Name:", value['Name'],'\n', "Company:", value['Company'],'\n',"About:", value['About'],'\n',"Specification:", value['Specification'],'\n',"Category:", value['Category'])
-            print("-"*10)
-        return True
-    else:
-        return False
+def print_product_by_id(id):
+    product = Product.get_product_by_id(id)
+    print("Name :", product['Name'])
+    print("Category :", product['Category'])
+    print("Company :", product['Company'])
+    print("Specification :", product['Specification'])
+    print("Price :", product['Price'])
+    print("-"*30)
 
-def product_by_name():
-    print(Product.get_product_by_name('Dell'))
+def print_products_by_category(category_name):
+    product_id_list = Product.get_products_id_by_category_name(category_name)
+    for product_id in product_id_list:
+        print_product_by_id(product_id)
 
+def show_bill(bill):
+    print("-"*30)
+    print("-"*13, "BILL", "-"*13)
+    print("Date:", bill['Date'])
+    print("Actual Amount: ", bill['Actual Amount'])
+    print("Discount: -", bill['Discount'])
+    print("-"*10)
+    print("Final Amount: ", bill['Final Amount'])
+    print("-"*30)
 
 def admin_start():
 
@@ -129,7 +149,7 @@ def admin_start():
 # product part
 
     # show products list per category
-    if products_per_category(category_choice):
+    if print_products_by_category(category_choice):
         print("Type 'r/R' to Remove Product")
 
     print("Type 'n/N' to Add New Product")
@@ -202,9 +222,9 @@ def user_start():
     else:
         print("Wrong Choice. Please Try again")
 
-
+# category
     # view category list
-    print(Category.get_all_categories())
+    Category.get_all_categories()
 
     # select category
     print("Type the Category You Want to Select:")
@@ -212,23 +232,44 @@ def user_start():
     category_choice = input("Your Choice :")
     print("-"*30)
 
+
+# product
     # view product list per category
-    if products_per_category(category_choice):
+    if print_products_by_category(category_choice):
         print("-"*30)
     else:
         print("-"*30)
 
     # view product by name
+    print("Type the Product Name You Want to Add to Cart:")
+    print("-"*30)
+    product_choice = input("Your Choice :")
 
     # add product to cart
+    u = Users()
+    u.add_to_cart(logged_in_user_id, Product.get_product_by_id(Product.get_product_id_by_product_name(product_choice)))
 
-    # return back to product list
+    # view cart
+    Users.view_cart(logged_in_user_id)
 
     # shop more
 
     # generate bill
+    print("Do you want to checkout cart now? y/n?")
+    choice = input("Generate Bill : ")
 
-    # pay bill
+    actual_amount = 0
+    if choice:
+        actual_amount = Users.generate_bill(logged_in_user_id)
+
+    # pay bill    
+    billing = Bill()
+    bill_id = billing.add_bill(userid=logged_in_user_id, actual_amount=actual_amount)
+
+    bill_object = Bill.get_bill_by_id(bill_id)
+    show_bill(bill_object)
+
+    print("Thanks for Shopping !!!")
 
     # exit
     pass
@@ -262,17 +303,3 @@ def starting():
 
 starting()
 
-
-# bill_object = Bill()
-# print(bill_object.add_bill('userid', 123456, {'Laptop':20000}, 25000, 500, 24500))
-
-# cart_obj = Cart()
-# print(cart_obj.add_user_to_cart("-MFtSESHPtEX3oFRp1nJ", {'Plant':500}, 0, 500))
-
-# print(Cart().show_cart_by_id('-MFuKkIAZgxohVtGqYnl'))
-
-# print(Users.get_user_by_id('-MFtSESHPtEX3oFRp1nJ'))
-
-# p = Product()
-
-# print(p.add_product(name="Mouse", company="Boat", about="Black", specification="Wired", category="Gadgets", price="900"))

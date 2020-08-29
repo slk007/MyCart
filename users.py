@@ -3,13 +3,13 @@ from firebase_admin import db
 
 class Users:
 
-    def __init__(self, name=None, email=None, password=None, admin_boolean=False):
+    def __init__(self):
+        self.name = None
+        self.email = None
+        self.password = None
+        self.admin_boolean = False
 
-        self.name = name
-        self.email = email
-        self.admin_boolean = admin_boolean
-
-    def add_user(self, name, email="abce@gmail.com", password="", admin_boolean=False):
+    def add_user(self, name="", email="", password="", admin_boolean=False):
 
         data = {
             'name': name,
@@ -18,6 +18,7 @@ class Users:
             'admin_boolean': admin_boolean,
         }
         ref_variable = db.reference('Users').push(data)
+        self.userid = ref_variable.key
         return ref_variable.key
 
     @staticmethod
@@ -30,7 +31,29 @@ class Users:
         user = db.reference("Users/{}".format(id)).get()
         return user
 
+    @staticmethod
+    def add_to_cart(userid, product):
+        db.reference("Users/{}/cart".format(userid)).push(product)
+        print("Added to Cart")
 
+    @staticmethod
+    def view_cart(user_id):
+        print("-"*13, "CART", "-"*13)
+        cart_dict = db.reference("Users/{}/cart".format(user_id)).get()
+        print("-"*30)
+        for key,values in cart_dict.items():
+            print(values['Name'], ", Rs.", values['Price'])
+        print("-"*30)
 
-# users_object = Users()
-# users_object.add_user("new", "user")
+    @staticmethod
+    def generate_bill(user_id):
+        cart_dict = db.reference("Users/{}/cart".format(user_id)).get()
+        actual_amount = 0
+        for key,values in cart_dict.items():
+            actual_amount += int(values['Price'])
+        return actual_amount
+
+    @staticmethod
+    def remove__product_from_cart(product):
+        pass
+
