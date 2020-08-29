@@ -12,7 +12,7 @@ class Category:
         }
 
         new_ref = db.reference('Category').push(data)
-        print(new_ref.key)
+        return new_ref.key
 
     @staticmethod
     def remove_category(id):
@@ -21,7 +21,15 @@ class Category:
     @staticmethod
     def show_categories():
         categories = db.reference("Category").get()
-        return categories
+
+        print("-"*30)
+        print("All Categories")
+        print("-"*30)
+
+        for category_id, values in categories.items():
+            print(values['category_name'])
+            
+        print("-"*30)
         
 
 # category_object = Category()

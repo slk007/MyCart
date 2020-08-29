@@ -3,28 +3,34 @@ from firebase_admin import db
 
 class Users:
 
-    def __init__(self, firstname=None, lastname=None, email=None, admin_boolean=False):
-        self.firstname = firstname
-        self.lastname = lastname
+    def __init__(self, name=None, email=None, password=None, admin_boolean=False):
+
+        self.name = name
         self.email = email
         self.admin_boolean = admin_boolean
 
-    def add_user(self, firstname, lastname, email="abce@gmail.com", admin_boolean=False):
+    def add_user(self, name, email="abce@gmail.com", password="", admin_boolean=False):
 
         data = {
-            'firstname': firstname,
-            'lastname': lastname,
+            'name': name,
             'email': email,
-            'admin_boolean': admin_boolean
+            'password' : password,
+            'admin_boolean': admin_boolean,
         }
-        ref_variable = db.reference('Users').set()
-        print(ref_variable.key)
+        ref_variable = db.reference('Users').push(data)
+        return ref_variable.key
 
     @staticmethod
     def show_users():
         users = db.reference('Users').get()
         return users
-        
+
+    # @staticmethod
+    # def users_order_by_child():
+    #     users = db.reference('Users').order_by_child('name').get()
+    #     return users
+
+
 
 # users_object = Users()
 # users_object.add_user("new", "user")
