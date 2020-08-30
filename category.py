@@ -1,6 +1,8 @@
 from firebase import firebase
 from firebase_admin import db
 
+from prettytable import PrettyTable
+
 class Category:
 
     def __init__(self, category_name=None):
@@ -22,18 +24,19 @@ class Category:
     def get_all_categories():
         categories = db.reference("Category").get()
 
+        print("All Categories:")
+        count = 1
+
+        t = PrettyTable(["S.no", "Category"])
         if categories:
-
-            print("-"*20, "Categories", "-"*20)
-
             for category_id, values in categories.items():
-                print(values['category_name'])
-
-            print("-"*30)
+                t.add_row([count, values['category_name']])
+                count += 1
+            print(t)
             return True
         else:
-            print("Sorry No Categories Yet !!!")
-            print("-"*30)
+            t.add_row([0, "No Category !!"])
+            print(t)
             return False
 
 

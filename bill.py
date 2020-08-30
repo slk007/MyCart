@@ -49,9 +49,8 @@ class Bill:
 
     @staticmethod
     def get_bills_by_user_id(user_id):
-        
-        pass
-
-    @staticmethod
-    def get_bills_by_username(username):
-        pass
+        bill_dic = db.reference("Bill").order_by_child("UserID").equal_to(user_id).get()
+        bill_id_list = []
+        for key,value in bill_dic.items():
+            bill_id_list.append(key)
+        return bill_id_list

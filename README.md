@@ -1,8 +1,13 @@
 # MyCart
 
+**python**
 **firebase**
 **firebase_admin**
 
-User
+**pip install PrettyTable**
+
+User/Admin
 Category
 Product
+Cart
+Bill
