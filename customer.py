@@ -7,22 +7,9 @@ from prettytable import PrettyTable
 
 import getpass
 
+from firebase_admin import db
+
 logged_in_user_id = None
-
-def search_user_for_login(email, password, boolean_admin):
-
-    users_dic = Users.get_all_users()
-    user_id = None
-    for user_id,value in users_dic.items():
-        if value['admin_boolean'] == boolean_admin and value['email']==email and value['password']==password:
-            print("Welcome" , value['name'])
-
-            global logged_in_user_id
-            logged_in_user_id = user_id
-
-            break
-    print("-"*30)
-    return user_id
 
 
 def sign_up(boolean_admin):
@@ -30,7 +17,14 @@ def sign_up(boolean_admin):
 
     name = input("Name: ")
     email_id = input("Email: ")
-    password = getpass.getpass("Password: ")
+    password = getpass("Password : ")
+
+    r1, r2 = None, None
+    r1 = dict(db.reference('Users').order_by_child('name').equal_to(name).get())
+    r2 = dict(db.reference('Users').order_by_child('email').equal_to(email_id).get())
+
+    if r1 or r2:
+        raise Exception("User Already Exists !!!")
 
     new_user = Users()
     new_user_id = new_user.add_user(name, email_id, password, boolean_admin)
@@ -44,13 +38,22 @@ def sign_up(boolean_admin):
 
 
 def login(boolean_admin):
-    print("To Login Please Enter Below Details:")
+
+    global logged_in_user_id
+    print("To Login Please Enter Below Details : ")
 
     email = input("Email: ")
     password = getpass.getpass("Password: ")
-    print("-"*30)
+    
+    r = None
+    r = dict(db.reference('Users').order_by_child('email').equal_to(email).get())
 
-    return search_user_for_login(email, password, boolean_admin)
+    if r:
+        if password == r[list(r.keys())[0]]['password']:
+            logged_in_user_id = list(r.keys())[0]
+            return list(r.keys())[0]
+
+    raise Exception("Credentials Wrong!!")
 
 
 def print_product_by_id(id):
@@ -94,7 +97,7 @@ def print_bills(bills):
     for bill_id in bills:
         bill = Bill.get_bill_by_id(bill_id)
 
-        t = PrettyTable(["Invoice Number", "1"])
+        t = PrettyTable(["Invoice Number",  bill["Invoice"]])
         t.add_row(["Date", bill['Date']])
         t.add_row(["Actual Amount", bill['Actual Amount']])
         t.add_row(["Discount", bill['Discount']])
@@ -111,18 +114,24 @@ def handling_cart():
     if items_present:
 
         t = PrettyTable(["Cart Menu", "Type"])
-        t.add_row(["Checkout & Buy", "b/B"])
-        t.add_row(["<--Return to Customer Menu", "r/R"])
+        t.add_row(["Checkout & Buy", "c/C"])
+        t.add_row(["<--Back to Customer Menu", "b/B"])
         print(t)
 
         choice = input("\nYour Choice: ")
 
         if len(choice) == 1:
-            if choice in 'bB':
+            if choice in 'cC':
                     
                 # generate bill
-                print("Do you want to checkout cart now? y/n?")
+                print("Do you want to checkout cart now? ")
+                tb = PrettyTable(["Cart Menu", "Type"])
+                tb.add_row(["Yes", "y/Y"])
+                tb.add_row(["No", "n/N"])
+                print(tb)
+
                 choice = input("Generate Bill : ")
+                print("-"*30)
                     
                 if choice in "yY":
                     actual_amount = 0
@@ -142,7 +151,7 @@ def handling_cart():
                 else:
                     return
 
-            elif choice in 'rR':
+            elif choice in 'bB':
                 return
             else:
                 print("Wrong Choice. Please Try again")
@@ -156,6 +165,56 @@ def handling_cart():
         # put category link here
         return
 
+
+
+def product_interaction(category_choice):
+
+    while True:
+        # view product list per category
+        if print_products_by_category(category_choice):
+
+            print("Select product from the above list ?")
+            t = PrettyTable(["Product Menu", "Type"])
+            t.add_row(["Yes", "y/Y"])
+            t.add_row(["No", "n/N"])
+            print(t)
+
+            wanna_buy = input("Your Choice : ")
+            print("-"*30)
+
+            if wanna_buy in 'yY':
+
+                # select product by name
+                print("Type 'Product Name' You Want to Add to Cart:")
+                print("-"*30)
+                product_choice = input("Your Choice : ")
+                print("-"*30)
+
+                if not db.reference("Product").order_by_child('Name').equal_to(product_choice).get():
+                    print("No such Product Exists")
+                    print("-"*30)
+                    continue
+
+                # add product to cart
+                u = Users()
+                u.add_to_cart(logged_in_user_id, Product.get_product_by_id(Product.get_product_id_by_product_name(product_choice)))
+                return
+
+            elif wanna_buy in "nN":
+                return
+            else:
+                print("Type one char only!!! Try again.")
+                print("-"*30)
+                continue
+
+        else:
+            print("No products for this category.")
+            return
+    return
+
+
+
+
 def category_interaction():
 
     while True:
@@ -164,8 +223,14 @@ def category_interaction():
 
         if cat_present:
 
-            print("Wanna select any Category? y/n")
+            print("Select any Category from the above list ?")
+            tb = PrettyTable(["Category Menu", "Type"])
+            tb.add_row(["Yes", "y/Y"])
+            tb.add_row(["No", "n/N"])
+            print(tb)
+
             want_cat = input("Your Choice : ")
+            print("-"*30)
 
             if want_cat in "yY":
                 # select category
@@ -173,36 +238,22 @@ def category_interaction():
                 print("-"*30)
                 category_choice = input("Your Choice : ")
                 print("-"*30)
+
+                if not db.reference('Category').order_by_child('category_name').equal_to(category_choice).get():
+                    print("No such category exits !!!! Try Again")
+                    continue
             
-            else:
+            elif want_cat in "nN":
                 # go back to user menu
                 return
-
+            else:
+                print("Type one character only!! Try Again")
+                print("-"*30)
+                continue
 
             # product
-            # view product list per category
-            if print_products_by_category(category_choice):
+            product_interaction(category_choice)
 
-                print("Wanna buy any product from the above list ? y/n")
-                wanna_buy = input("Your Choice : ")
-
-                if wanna_buy in 'yY':
-
-                    # select product by name
-                    print("Type the 'Product Name' You Want to Add to Cart:")
-                    print("-"*30)
-                    product_choice = input("Your Choice : ")
-
-                    # add product to cart
-                    u = Users()
-                    u.add_to_cart(logged_in_user_id, Product.get_product_by_id(Product.get_product_id_by_product_name(product_choice)))
-                    return
-                else:
-                    continue
-
-            else:
-                print("No such product present")
-                return
 
         else:
             return
@@ -221,6 +272,7 @@ def customer_carting():
         print(t)
 
         choice = input("\nYour Choice: ")
+        print("-"*30)
 
         if len(choice) == 1:
             if choice in 'pP':
@@ -245,9 +297,11 @@ def customer_carting():
 
             else:
                 print("Wrong Choice. Please Try again")
+                print("-"*30)
                 continue
         else:
             print("Type 1 character only!! Try again")
+            print("-"*30)
             continue
     return
 
@@ -257,8 +311,8 @@ def customer_start():
     while True:
 
         t = PrettyTable(["User Menu", "Type"])
-        t.add_row(["Sign Up", "s/S"])
-        t.add_row(["Log IN", "l/L"])
+        t.add_row(["Signup", "s/S"])
+        t.add_row(["Login", "l/L"])
         t.add_row(["<--Back to MyCart Menu", "b/B"])
         print(t)
 
@@ -268,15 +322,25 @@ def customer_start():
         if len(choice) == 1:
             if choice in 'sS':
                 # create account
-                current_user_id = sign_up(False)
-                if current_user_id:
-                    customer_carting()
+                try:
+                    current_user_id = sign_up(False)
+                    if current_user_id:
+                        customer_carting()
+                except Exception:
+                    print("User with same email/name already exists!!!! Try Again")
+                    print("-"*30)
+                    return
 
             elif choice in 'lL':
                 # login
-                current_user_id = login(False)
-                if current_user_id:
-                    customer_carting()
+                try:
+                    current_user_id = login(False)
+                    if current_user_id:
+                        customer_carting()
+                except Exception:
+                    print("Wrong Credentials!!!! Try Again")
+                    print("-"*30)
+                    return
 
             elif choice in 'b/B':
                 return

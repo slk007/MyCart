@@ -44,7 +44,9 @@ class Users:
     @staticmethod
     def add_to_cart(userid, product):
         db.reference("Users/{}/cart".format(userid)).push(product)
+        print("-"*30)
         print("Added to Cart")
+        print("-"*30)
 
     @staticmethod
     def view_cart(user_id):

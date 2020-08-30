@@ -1,28 +1,28 @@
 from firebase import firebase
 from firebase_admin import db
 
-from datetime import date
+from datetime import datetime, date
 
 class Bill:
 
     def __init__(self):
         self.userid = None
-        self.username = None
         self.invoice = None
         self.date = None
         self.actual_amount = None
         self.discount = None
         self.final_amount = None
 
-    def add_bill(self, userid=None, username=None, invoice=None, discount=0, actual_amount=0):
+    def add_bill(self, userid=None, discount=0, actual_amount=0):
 
         if actual_amount > 10000:
             discount = 500
         final_amount = actual_amount - discount
 
+        invoice = int(datetime.today().timestamp())
+
         data = {
             'UserID': userid,
-            'Username': username,
             'Invoice': invoice,
             'Date': str(date.today()),
             'Actual Amount': actual_amount,

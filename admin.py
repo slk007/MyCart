@@ -11,20 +11,7 @@ logged_in_admin_id = None
 selected_user_id = None
 selected_customer_id = None
 
-def search_user_for_login(email, password, boolean_admin):
-
-    users_dic = Users.get_all_users()
-
-    for user_id,value in users_dic.items():
-        if value['admin_boolean'] == boolean_admin and value['email']==email and value['password']==password:
-            print("Welcome" , value['name'])
-
-            global logged_in_admin_id
-            logged_in_admin_id = user_id
-
-            break
-    print("-"*30)
-    return user_id
+from firebase_admin import db
 
 
 def sign_up(boolean_admin):
@@ -32,7 +19,14 @@ def sign_up(boolean_admin):
 
     name = input("Name: ")
     email_id = input("Email: ")
-    password = getpass.getpass("Password : ")
+    password = getpass("Password : ")
+
+    r1, r2 = None, None
+    r1 = dict(db.reference('Users').order_by_child('name').equal_to(name).get())
+    r2 = dict(db.reference('Users').order_by_child('email').equal_to(email_id).get())
+
+    if r1 or r2:
+        raise Exception("User Already Exists !!!")
 
     new_user = Users()
     new_user_id = new_user.add_user(name, email_id, password, boolean_admin)
@@ -42,16 +36,26 @@ def sign_up(boolean_admin):
     global logged_in_admin_id
     logged_in_admin_id = new_user_id
 
-    print(new_user_id)
+    return new_user_id
 
 
 def login(boolean_admin):
+
+    global logged_in_admin_id
     print("To Login Please Enter Below Details : ")
 
     email = input("Email: ")
     password = getpass.getpass("Password: ")
+    
+    r = None
+    r = dict(db.reference('Users').order_by_child('email').equal_to(email).get())
 
-    return search_user_for_login(email, password, boolean_admin)
+    if r:
+        if password == r[list(r.keys())[0]]['password']:
+            logged_in_admin_id = list(r.keys())[0]
+            return list(r.keys())[0]
+
+    raise Exception("Credentials Wrong!!")
 
 
 def print_product_by_id(id):
@@ -82,6 +86,10 @@ def new_category():
     print("Please Enter New Category Name : ")
     new_cat = input("Category : ")
 
+    ref_var = db.reference('Category').order_by_child('category_name').equal_to(new_cat).get()
+
+    if ref_var:
+        return False
     category_object = Category()
     new_category_id = category_object.add_category(new_cat)
     return new_cat
@@ -93,7 +101,7 @@ def print_bills(bills):
     for bill_id in bills:
         bill = Bill.get_bill_by_id(bill_id)
 
-        t = PrettyTable(["Invoice Number", "1"])
+        t = PrettyTable(["Invoice Number", bill["Invoice"]])
         t.add_row(["Date", bill['Date']])
         t.add_row(["Actual Amount", bill['Actual Amount']])
         t.add_row(["Discount", bill['Discount']])
@@ -189,6 +197,12 @@ def handling_products(category_choice):
                 print('-'*30)
 
                 product_name = input("Product Name : ")
+
+                ref_var = db.reference("Product").order_by_child('Name').equal_to(product_name).get()
+
+                if ref_var:
+                    print("Product Already Exists")
+                    continue
                 product_company = input("Product Company : ")
                 product_about = input("Product About : ")
                 product_specs = input("Product Specifications : ")
@@ -218,34 +232,48 @@ def handling_products(category_choice):
 
 def handling_category():
 
-    print("-"*30)
-    if Category.get_all_categories():
-        print("Type 's/S' to Select a Category")
-    
-    print("Type 'n/N' to Create New Category")
-    print("-"*30)
-    choice = input("Your Choice : ")
-    print("-"*30)
+    while True:
+        print("-"*30)
+        c = Category.get_all_categories()
 
-    category_choice = ""
+        t = PrettyTable(["Category Menu", "Type"]) 
+        if c:
+            t.add_row(["Select a Category", "s/S"])
+        t.add_row(["Create New Category", "n/N"])
+        t.add_row(["Return Back", "b/B"])
+        print(t)
 
-    if len(choice) == 1:
-        if choice in 'sS':
-            # select category
-            print("Type the Category You Want to Select:")
-            print("-"*30)
-            category_choice = input("Your Choice : ")
-            print("-"*30)
-            handling_products(category_choice)
+        print("-"*30)
+        choice = input("Your Choice : ")
+        print("-"*30)
 
-        elif choice in 'nN':
-            # add category
-            category_choice = new_category()
-            handling_products(category_choice)
+        category_choice = ""
 
-    else:
-        print("Wrong Choice. Please Try again")
+        if len(choice) == 1:
+            if choice in 'sS':
+                # select category
+                print("Type the Category You Want to Select:")
+                print("-"*30)
+                category_choice = input("Your Choice : ")
+                print("-"*30)
+                handling_products(category_choice)
 
+            elif choice in 'nN':
+                # add category
+                category_choice = new_category()
+                if category_choice:
+                    handling_products(category_choice)
+                else:
+                    print("Category Already Exists!! Try Another")
+                    continue
+            elif choice in "bB":
+                return
+            else:
+                print("Type only one character. Try Again!!!")
+                continue
+        else:
+            print("Wrong Choice. Please Try again")
+            continue
     return
 
 
@@ -255,8 +283,8 @@ def admin_handles():
 
         t = PrettyTable(["Admin Menu", "Type"])
         t.add_row(["View Customers", "v/V"])
-        t.add_row(["Catergories", "C/c"])
-        t.add_row(["<-- Return to User Menu", "r/R"])
+        t.add_row(["Catergories", "c/C"])
+        t.add_row(["<-- Back to User Menu", "b/B"])
         print(t)
 
         choice = input("\nYour Choice: ")
@@ -280,7 +308,7 @@ def admin_handles():
                 # add remove category
                 handling_category()
 
-            elif choice in 'rR':
+            elif choice in 'bB':
                 return
             else:
                 print("Wrong Choice!!! Try Again.")
@@ -297,8 +325,8 @@ def admin_start():
     while True:
 
         t = PrettyTable(["User Menu", "Type"])
-        t.add_row(["Sign Up", "s/S"])
-        t.add_row(["Log IN", "l/L"])
+        t.add_row(["Signup", "s/S"])
+        t.add_row(["Login", "l/L"])
         t.add_row(["<--Back to MyCart Menu", "b/B"])
         print(t)
 
@@ -307,16 +335,27 @@ def admin_start():
 
         if len(choice) == 1:
             if choice in 'sS':
-                # create account
-                current_admin_id = sign_up(True)
-                if current_admin_id:
-                    admin_handles()
+                # create admin
+                try:
+                    current_admin_id = sign_up(True)
+                    if current_admin_id:
+                        admin_handles()
+                except Exception:
+                    print("Admin with same email/name already exists!!!! Try Again")
+                    print("-"*30)
+                    return
 
             elif choice in 'lL':
                 # login
-                current_admin_id = login(True)
-                if current_admin_id:
-                    admin_handles()
+                try:
+                    current_admin_id = login(True)
+                    if current_admin_id:
+                        admin_handles()
+                except Exception:
+                    print("Wrong Credentials!!!! Try Again")
+                    print("-"*30)
+                    return
+
 
             elif choice in 'b/B':
                 return

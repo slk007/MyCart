@@ -6,6 +6,7 @@ from product import Product
 from category import Category
 from users import Users
 from bill import Bill
+import admin
 
 from customer import customer_start
 from admin import admin_start
@@ -71,3 +72,9 @@ def start_mycart():
 
 # our MyCart takes off from here
 start_mycart()
+
+# initiating_firebase_app()
+
+
+# admin.search_user_for_login("prateek", "pass", True)
+
