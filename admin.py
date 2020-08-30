@@ -7,8 +7,9 @@ from prettytable import PrettyTable
 
 import getpass
 
-logged_in_user_id = None
+logged_in_admin_id = None
 selected_user_id = None
+selected_customer_id = None
 
 def search_user_for_login(email, password, boolean_admin):
 
@@ -18,140 +19,205 @@ def search_user_for_login(email, password, boolean_admin):
         if value['admin_boolean'] == boolean_admin and value['email']==email and value['password']==password:
             print("Welcome" , value['name'])
 
-            global logged_in_user_id
-            logged_in_user_id = user_id
+            global logged_in_admin_id
+            logged_in_admin_id = user_id
 
             break
     print("-"*30)
+    return user_id
 
 
 def sign_up(boolean_admin):
-    print("To Sign Up Please Enter Below Details:")
+    print("To Sign Up Please Enter Below Details :")
 
     name = input("Name: ")
     email_id = input("Email: ")
-    password = getpass.getpass("Password: ")
+    password = getpass.getpass("Password : ")
 
     new_user = Users()
     new_user_id = new_user.add_user(name, email_id, password, boolean_admin)
 
     print("Sign Up Successfull !!")
 
-    global logged_in_user_id
-    logged_in_user_id = new_user_id
+    global logged_in_admin_id
+    logged_in_admin_id = new_user_id
 
     print(new_user_id)
 
 
 def login(boolean_admin):
-    print("To Login Please Enter Below Details:")
+    print("To Login Please Enter Below Details : ")
 
     email = input("Email: ")
     password = getpass.getpass("Password: ")
 
     return search_user_for_login(email, password, boolean_admin)
 
+
 def print_product_by_id(id):
     product = Product.get_product_by_id(id)
-    print("Name :", product['Name'])
-    print("Category :", product['Category'])
-    print("Company :", product['Company'])
-    print("Specification :", product['Specification'])
-    print("Price :", product['Price'])
-    print("-"*30)
+    t = PrettyTable(["Name", product['Name']])
+    t.add_row(["Category", product['Category']])
+    t.add_row(["Company", product['Company']])
+    t.add_row(["Specification", product['Specification']])
+    t.add_row(["Price", product['Price']])
+    print(t)
 
 
 def print_products_by_category(category_name):
     product_id_list = Product.get_products_id_by_category_name(category_name)
-    for product_id in product_id_list:
-        print_product_by_id(product_id)
 
+    print("All Products for '{}' category:".format(category_name))
+
+    if product_id_list:
+        for product_id in product_id_list:
+            print_product_by_id(product_id)
+        return True
+    else:
+        return False
 
 
 def new_category():
     print("-"*30)
-    print("Please Enter New Category:")
+    print("Please Enter New Category Name : ")
     new_cat = input("Category : ")
 
     category_object = Category()
     new_category_id = category_object.add_category(new_cat)
     return new_cat
 
-def print_bills(bills):
 
+def print_bills(bills):
+    print("-"*40)
+    print("All Bills are here :")
     for bill_id in bills:
         bill = Bill.get_bill_by_id(bill_id)
-        print("Date:", bill['Date'])
-        print("Actual Amount: ", bill['Actual Amount'])
-        print("Discount: -", bill['Discount'])
-        print("-"*10)
-        print("Final Amount: ", bill['Final Amount'])
-        print("-"*30)
+
+        t = PrettyTable(["Invoice Number", "1"])
+        t.add_row(["Date", bill['Date']])
+        t.add_row(["Actual Amount", bill['Actual Amount']])
+        t.add_row(["Discount", bill['Discount']])
+        t.add_row(["Final Amount", bill['Final Amount']])
+        print(t)
+    print("-"*40)
+
 
 def print_users(users_dic):
     print("-"*12, "USERS", "-"*13)
-    for key, value in users_dic.items():
-        if value['admin_boolean'] == False:
-            print("User Name: ", value['name'])
 
-
-def admin_start():
-
-    # t = PrettyTable(["User Menu", "Type"])
-    #     t.add_row(["Sign Up", "s/S"])
-    #     t.add_row(["Log IN", "l/L"])
-    #     t.add_row(["<--Back to MyCart Menu", "b/B"])
-    #     print(t)
-
-    #     choice = input("\nYour Choice: ")
-    #     print("-"*30)
-
-    #     if len(choice) == 1:
-    #         if choice in 'sS':
-    #             # create account
-    #             current_user_id = sign_up(False)
-    #             if current_user_id:
-    #                 customer_carting()
-
-    #         elif choice in 'lL':
-    #             # login
-    #             current_user_id = login(False)
-    #             if current_user_id:
-    #                 customer_carting()
-
-    #         elif choice in 'b/B':
-    #             return
-
-    #         else:
-    #             print("Wrong Choice. Please Try again")
-    #             return
-    #     else:
-    #         print("Type 1 character only!! Try again")
-    #         return
-
-    print("-"*30)
-    print("Type 'l/L' for Login")
-    print("Type 's/S' for SignUp")
-    print("Type 'e/E' for Exit")
-    print("-"*30)
-    choice = input("Your Choice : ")
-    print("-"*30)
-
-    if len(choice) == 1:
-        if choice in 'sS':
-            # create account
-            current_user_id = sign_up(True)
-
-        elif choice in 'lL':
-            # login
-            current_user_id = login(True)
-
+    if users_dic:
+        count = 1
+        t = PrettyTable(["S.No", "User Name"])
+        for key, value in users_dic.items():
+            if value['admin_boolean'] == False:
+                t.add_row([count, value['name']])
+                count += 1
+        print(t)
+        return True
     else:
-        print("Wrong Choice. Please Try again")
+        return False
 
-# category part
 
-    # view category list
+def handling_customers():
+
+    while True:
+        print("Type s/S to select a customer, any other to go back?")
+        wanna_select = input("Your Choice : ")
+
+        if wanna_select not in "sS":
+            return
+
+        print("Type the name of the Customer, to view his cart/bills :")
+        selected_customer_name = input("Customer Name : ")
+
+        global selected_customer_id
+        selected_customer_id = Users.get_user_id_by_user_name(selected_customer_name)
+
+
+        t = PrettyTable(["Customer Options", "Type"])
+        t.add_row(["Cart", 'c/C'])
+        t.add_row(["Bills", 'b/B'])
+        t.add_row(["Return Back", 'r/R'])
+        print(t)
+
+        choice = input("Your Choice : ")
+
+        if len(choice) == 1:
+
+            if choice in "cC":
+                # show cart by user(customer) id
+                print("Cart of Selected Customer:")
+                c =  Users.view_cart(selected_customer_id)
+                
+            elif choice in "bB":
+                # show bills by user(customer) id
+                print("Bills of Selected Customer:")
+                bills_id_list = Bill.get_bills_by_user_id(selected_customer_id)
+                print_bills(bills_id_list)
+
+            elif choice in "rR":
+                return
+            else:
+                print("Wrong Choice!!! Try Again.")
+                continue
+        else:
+            print("Choice should be of 1 char !!! Try Again.")
+            continue
+    return
+
+def handling_products(category_choice):
+
+    while True:
+        product_present = print_products_by_category(category_choice)
+
+        t = PrettyTable(["Product Menu", "Type"])
+        t.add_row(["New Product", "n/N"])
+        if product_present:
+            t.add_row(["Remove Product", "r/R"])
+        t.add_row(["Back", "b/B"])
+        print(t)
+
+        print("-"*30)
+        choice = input("Your Choice : ")
+        print("-"*30)
+
+        if len(choice) == 1:
+            if choice in 'n/N':
+                # new product
+                print('-'*30)
+                print("Enter Details for new Product:")
+                print('-'*30)
+
+                product_name = input("Product Name : ")
+                product_company = input("Product Company : ")
+                product_about = input("Product About : ")
+                product_specs = input("Product Specifications : ")
+                product_price = input("Price : ")
+
+                prod_object = Product()
+                prod_id = prod_object.add_product(name=product_name, company=product_company, about=product_about, specification=product_specs, category=category_choice, price=product_price)
+
+            elif choice in 'rR':
+                # remove product
+                print('-'*30)
+                print("Enter Product Name to be Delete")
+                print('-'*30)
+                product_name = input("Product Name:")
+                Product.remove_product(Product.get_product_id_by_product_name(product_name))
+            elif choice in "bB":
+                return
+            else:
+                print("Wrong Choice!!! Try Again")
+                continue
+        else:
+            print("Please select one character only !!! Try Again")
+            continue
+    return
+
+
+
+def handling_category():
+
     print("-"*30)
     if Category.get_all_categories():
         print("Type 's/S' to Select a Category")
@@ -170,81 +236,96 @@ def admin_start():
             print("-"*30)
             category_choice = input("Your Choice : ")
             print("-"*30)
+            handling_products(category_choice)
 
         elif choice in 'nN':
             # add category
             category_choice = new_category()
+            handling_products(category_choice)
 
     else:
         print("Wrong Choice. Please Try again")
 
-
-# product part
-
-    # show products list per category
-    if print_products_by_category(category_choice):
-        print("Type 'r/R' to Remove Product")
-
-    print("Type 'n/N' to Add New Product")
-    print("-"*30)
-    choice = input("Your Choice : ")
-    print("-"*30)
-
-    # product_choice = ""
-
-    if len(choice) == 1:
-        if choice in 'n/N':
-            # new product
-            print('-'*30)
-            print("Enter Details for new Product:")
-            print('-'*30)
-
-            product_name = input("Product Name : ")
-            product_company = input("Product Company : ")
-            product_about = input("Product About : ")
-            product_specs = input("Product Specifications : ")
-            product_price = input("Price : ")
+    return
 
 
-            prod_object = Product()
-            prod_id = prod_object.add_product(name=product_name, company=product_company, about=product_about, specification=product_specs, category=category_choice, price=product_price)
-            
+def admin_handles():
 
-        elif choice in 'rR':
-            # remove product
-            print('-'*30)
-            print("Enter Product ID to be Delete")
-            print('-'*30)
-            product_id = input("Product ID:")
-            Product.remove_product(product_id)
+    while True:
+
+        t = PrettyTable(["Admin Menu", "Type"])
+        t.add_row(["View Customers", "v/V"])
+        t.add_row(["Catergories", "C/c"])
+        t.add_row(["<-- Return to User Menu", "r/R"])
+        print(t)
+
+        choice = input("\nYour Choice: ")
+
+        print("-"*30)
+
+        if len(choice) == 1:
+            if choice in 'vV':
+                # view all customer
+                users_dict = Users.get_all_users()
+
+                if print_users(users_dict):
+
+                    # showing their bills and cart
+                    handling_customers()
+                else:
+                    # when no user added yet
+                    continue
+
+            elif choice in 'cC':
+                # add remove category
+                handling_category()
+
+            elif choice in 'rR':
+                return
+            else:
+                print("Wrong Choice!!! Try Again.")
+                continue
+        else:
+            print("Choice should be of 1 char !!! Try Again.")
+            continue
+    return
 
 
-# users part
-    print("-"*30)
-    print("Users List:")
-    print("-"*30)
 
-    # see users list
-    users_dict = Users.get_all_users()
-    print_users(users_dict)
-    
-    # see his order details or bill
-    print("Type the name of the User, to view his cart/bills :")
-    bill_choice = input("User Name:")
+def admin_start():
 
-    # getting user's id & it's object in 
-    global selected_user_id
-    selected_user_id = Users.get_user_id_by_user_name(bill_choice)
-    selected_user_obj = Users.get_user_by_id(selected_user_id)
+    while True:
 
-    # view selected users cart
-    print("Cart of Selected User:")
-    Users.view_cart(selected_user_id)
- 
-    # view selected users bills
-    print("Bills of Selected User:")
-    bills_id_list = Bill.get_bills_by_user_id(selected_user_id)
-    print_bills(bills_id_list)
+        t = PrettyTable(["User Menu", "Type"])
+        t.add_row(["Sign Up", "s/S"])
+        t.add_row(["Log IN", "l/L"])
+        t.add_row(["<--Back to MyCart Menu", "b/B"])
+        print(t)
 
+        choice = input("\nYour Choice: ")
+        print("-"*30)
+
+        if len(choice) == 1:
+            if choice in 'sS':
+                # create account
+                current_admin_id = sign_up(True)
+                if current_admin_id:
+                    admin_handles()
+
+            elif choice in 'lL':
+                # login
+                current_admin_id = login(True)
+                if current_admin_id:
+                    admin_handles()
+
+            elif choice in 'b/B':
+                return
+
+            else:
+                print("Wrong Choice. Please Try again")
+                continue
+        else:
+            print("Type 1 character only!! Try again")
+            continue
     # exit
-    pass
+    return

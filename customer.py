@@ -100,7 +100,6 @@ def print_bills(bills):
         t.add_row(["Discount", bill['Discount']])
         t.add_row(["Final Amount", bill['Final Amount']])
         print(t)
-
     print("-"*40)
 
 

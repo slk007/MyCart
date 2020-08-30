@@ -28,7 +28,9 @@ def start_mycart():
     initiating_firebase_app()
 
     print("-"*30)
-    print("Welcome to MyCart")
+    print("Welcome to MyCart !!!!!!!")
+    print("-"*30)
+    print("Shop for above Rs.10,000 and avail an instant discount of Rs.500\nHurry Up !!!!!!!!!!11")
     print("-"*30)
 
     while True:
