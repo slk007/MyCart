@@ -1,0 +1,9 @@
+Testcases,Resolution
+,
+"create a new user, with email, name, password, ",Passed
+"create a new admin user, with email, name, password",Passed
+"sign in as customer, select categrory, select product, add to cart, bill",Passed
+"sign in as customer, select categrory, select product, remove a product from cart",Failed
+"sign in as admin, view user cart",Passed
+"sign in as admin, view user bills",Passed
+"sign in as admin, delete category",Failed

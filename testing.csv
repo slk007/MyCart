@@ -1,4 +1,0 @@
-testcases,resolution
-,
-"create a new user, with email, name, password, ",Passed
-"create a new admin user, with email, name, password",Passed
