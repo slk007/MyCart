@@ -1,5 +1,8 @@
 # MyCart
 
+**Welcome to MyCart.**
+**Command Line Based E-Commerce App made using Python3**
+
 * Inside:
     * User/Admin
     * Category
@@ -10,7 +13,7 @@
     * ER Diagram [Download Here](https://github.com/slk007/MyCart/raw/master/ER%20Diagram.pptx)
 
 
-**Prereqtiste**
+* Prereqtiste
     * pip
     * python3 
 
@@ -29,11 +32,12 @@ pip install firebase_admin
 ```
 pip install PrettyTable
 ```
+<br />
 
-*To Run the MyCart App: (run the main.py file inside MyCart Directory)
-go cd/MyCart
-
-then
+* To Run the MyCart App: 
+    * run the main.py file inside MyCart Directory
+    * go cd/MyCart
+    * then type below command
 
 ```
 python main.py
