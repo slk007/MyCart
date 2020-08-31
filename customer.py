@@ -82,7 +82,7 @@ def print_products_by_category(category_name):
 def print_bill(bill):
     print("-"*40)
     print("-"*13, "BILL", "-"*13)
-    t = PrettyTable(["Invoice Number", "1"])
+    t = PrettyTable(["Invoice Number", bill["Invoice"]])
     t.add_row(["Date", bill['Date']])
     t.add_row(["Actual Amount", bill['Actual Amount']])
     t.add_row(["Discount", bill['Discount']])
