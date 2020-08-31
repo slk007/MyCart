@@ -45,3 +45,20 @@ pip install PrettyTable
 ```
 python main.py
 ```
+
+<br />
+
+### Error: Note
+**If you are receiving an error like below:**
+```
+Traceback (most recent call last):
+  File "C:\Users\hajel\AppData\Local\Programs\Python\Python37-32\Scripts\RFIDHandler.py", line 1, in <module>
+    import firebase
+  File "C:\Users\hajel\AppData\Local\Programs\Python\Python37-32\lib\site-packages\firebase\__init__.py", line 3
+    from .async import process_pool
+              ^
+SyntaxError: invalid syntax
+```
+Please follow the below link to resolve it:
+
+[follow this link](https://stackoverflow.com/questions/52133031/receiving-async-error-when-trying-to-import-the-firebase-package)
