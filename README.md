@@ -1,6 +1,6 @@
 # MyCart
 
-**Welcome to MyCart.**
+**Welcome to MyCart.**<br />
 **Command Line Based E-Commerce App made using Python3**
 
 * Inside:
@@ -17,16 +17,19 @@
     * pip
     * python3 
 
+<br />
 
 *Install firebase:
 ```
 pip install firebase
 ```
+<br />
 
 *Install firebase_admin:
 ```
 pip install firebase_admin
 ```
+<br />
 
 *Install PrettyTable:
 ```
