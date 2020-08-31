@@ -1,17 +1,18 @@
 # MyCart
 
-*Inside:
-    *User/Admin
-    *Category
-    *Product
-    *Cart
-    *Bill
-    *Testing [View](https://github.com/slk007/MyCart/blob/master/Testing.csv)
-    *ER Diagram [Download Here](https://github.com/slk007/MyCart/blob/master/ER%20Diagram.pptx)
+* Inside:
+    * User/Admin
+    * Category
+    * Product
+    * Cart
+    * Bill
+    * Testing [View](https://github.com/slk007/MyCart/blob/master/Testing.csv)
+    * ER Diagram [Download Here](https://github.com/slk007/MyCart/raw/master/ER%20Diagram.pptx)
+
 
 **Prereqtiste**
-    *pip
-    *python3 
+    * pip
+    * python3 
 
 
 *Install firebase:
