@@ -39,7 +39,7 @@ pip install PrettyTable
 <br />
 
 **To Run the MyCart App:**
-    * run the main.py file inside MyCart Directory
+run the main.py file inside MyCart Directory
     * do: cd/MyCart
     * then type below command
 
