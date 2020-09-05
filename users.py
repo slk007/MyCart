@@ -2,6 +2,7 @@ from firebase import firebase
 from firebase_admin import db
 
 from prettytable import PrettyTable
+from db import Db,db_obj
 
 class Users:
 
@@ -48,6 +49,9 @@ class Users:
         print("Added to Cart")
         print("-"*30)
 
+        # refreshing users after items are added to their cart
+        db_obj.ref_users = db.reference("Users")
+
     @staticmethod
     def view_cart(user_id):
         print("-"*13, "CART", "-"*13)
@@ -80,8 +84,4 @@ class Users:
         # returning total amount
         return actual_amount
 
-    @staticmethod
-    def remove_product_from_cart(product):
-
-        pass
 

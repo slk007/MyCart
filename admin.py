@@ -13,49 +13,7 @@ selected_customer_id = None
 
 from firebase_admin import db
 
-
-def sign_up(boolean_admin):
-    print("To Sign Up Please Enter Below Details :")
-
-    name = input("Name: ")
-    email_id = input("Email: ")
-    password = getpass("Password : ")
-
-    r1, r2 = None, None
-    r1 = dict(db.reference('Users').order_by_child('name').equal_to(name).get())
-    r2 = dict(db.reference('Users').order_by_child('email').equal_to(email_id).get())
-
-    if r1 or r2:
-        raise Exception("User Already Exists !!!")
-
-    new_user = Users()
-    new_user_id = new_user.add_user(name, email_id, password, boolean_admin)
-
-    print("Sign Up Successfull !!")
-
-    global logged_in_admin_id
-    logged_in_admin_id = new_user_id
-
-    return new_user_id
-
-
-def login(boolean_admin):
-
-    global logged_in_admin_id
-    print("To Login Please Enter Below Details : ")
-
-    email = input("Email: ")
-    password = getpass.getpass("Password: ")
-    
-    r = None
-    r = dict(db.reference('Users').order_by_child('email').equal_to(email).get())
-
-    if r:
-        if password == r[list(r.keys())[0]]['password']:
-            logged_in_admin_id = list(r.keys())[0]
-            return list(r.keys())[0]
-
-    raise Exception("Credentials Wrong!!")
+from db import db_obj, Db
 
 
 def print_product_by_id(id):
@@ -94,20 +52,6 @@ def new_category():
     new_category_id = category_object.add_category(new_cat)
     return new_cat
 
-
-def print_bills(bills):
-    print("-"*40)
-    print("All Bills are here :")
-    for bill_id in bills:
-        bill = Bill.get_bill_by_id(bill_id)
-
-        t = PrettyTable(["Invoice Number", bill["Invoice"]])
-        t.add_row(["Date", bill['Date']])
-        t.add_row(["Actual Amount", bill['Actual Amount']])
-        t.add_row(["Discount", bill['Discount']])
-        t.add_row(["Final Amount", bill['Final Amount']])
-        print(t)
-    print("-"*40)
 
 
 def print_users(users_dic):
@@ -161,7 +105,7 @@ def handling_customers():
                 # show bills by user(customer) id
                 print("Bills of Selected Customer:")
                 bills_id_list = Bill.get_bills_by_user_id(selected_customer_id)
-                print_bills(bills_id_list)
+                Db.print_bills(bills_id_list)
 
             elif choice in "rR":
                 return
@@ -335,12 +279,13 @@ def admin_start():
 
         if len(choice) == 1:
             if choice in 'sS':
+
                 # create admin
-                try:
-                    current_admin_id = sign_up(True)
-                    if current_admin_id:
-                        admin_handles()
-                except Exception:
+                current_admin_id = db_obj.sign_up(True)
+
+                if current_admin_id:
+                    admin_handles()
+                else:
                     print("Admin with same email/name already exists!!!! Try Again")
                     print("-"*30)
                     return
@@ -348,7 +293,7 @@ def admin_start():
             elif choice in 'lL':
                 # login
                 try:
-                    current_admin_id = login(True)
+                    current_admin_id = db_obj.login(True)
                     if current_admin_id:
                         admin_handles()
                 except Exception:

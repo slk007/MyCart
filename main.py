@@ -1,6 +1,8 @@
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
+# import firebase_admin
+# from firebase_admin import credentials
+# from firebase_admin import db
+
+from db import db_obj
 
 from product import Product
 from category import Category
@@ -13,20 +15,10 @@ from admin import admin_start
 
 from prettytable import PrettyTable
 
-def initiating_firebase_app():
-    """ Function certifies the  """
-
-    cred = credentials.Certificate("mycart-python-firebase-authenticate-key.json")
-
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://mycart-python.firebaseio.com/'
-    })
-
 
 def start_mycart():
-
+    
     # initiatating firebase certificate
-    initiating_firebase_app()
 
     print("-"*30)
     print("Welcome to MyCart !!!!!!!")
@@ -73,8 +65,4 @@ def start_mycart():
 # our MyCart takes off from here
 start_mycart()
 
-# initiating_firebase_app()
-
-
-# admin.search_user_for_login("prateek", "pass", True)
 
