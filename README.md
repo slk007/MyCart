@@ -4,12 +4,13 @@
 **Command Line Based E-Commerce App made using Python3**
 
 * Inside:
+    * OOP
     * User/Admin
     * Category
     * Product
     * Cart
     * Bill
-    * Testing [View](https://github.com/slk007/MyCart/blob/master/Testing.csv)
+    * Testing [View](https://github.com/slk007/MyCart/blob/master/testing.py)
     * ER Diagram [Download Here](https://github.com/slk007/MyCart/raw/master/ER%20Diagram.pptx)
 
 
@@ -19,31 +20,38 @@
 
 <br />
 
-*Install firebase:
+**Install firebase:**
 ```
 pip install firebase
 ```
 <br />
 
-*Install firebase_admin:
+**Install firebase_admin:**
 ```
 pip install firebase_admin
 ```
 <br />
 
-*Install PrettyTable:
+**Install PrettyTable:**
 ```
 pip install PrettyTable
 ```
 <br />
 
-* To Run the MyCart App: 
+**To Run the MyCart App:**
     * run the main.py file inside MyCart Directory
-    * go cd/MyCart
+    * do: cd/MyCart
     * then type below command
 
 ```
 python main.py
+```
+
+<br />
+
+**To Run the Test Case:**
+```
+python testing.py
 ```
 
 <br />
