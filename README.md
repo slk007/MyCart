@@ -3,6 +3,8 @@
 **Welcome to MyCart.**<br />
 **Command Line Based E-Commerce App made using Python3**
 
+![](/MyCart_Snap.png)
+
 * Inside:
     * OOP
     * User/Admin
