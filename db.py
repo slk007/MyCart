@@ -13,10 +13,10 @@ class Db:
     def initiating_firebase_app(self):
         """ Function certifies the  """
 
-        self.cred = credentials.Certificate("mycart-python-firebase-authenticate-key.json")
+        self.cred = credentials.Certificate("<your-mycart-python-firebase-authenticate-key.json here>")
 
         firebase_admin.initialize_app(self.cred, {
-            'databaseURL': 'https://mycart-python.firebaseio.com/'
+            'databaseURL': 'https://<your-firebase-link>.firebaseio.com/'
         })
 
     def __init__(self):
